@@ -18,11 +18,11 @@ app.use(bodyParser.json());
 
 //CORS
 app.use(cors());
+  //mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || "mongodb://127.0.0.1:27017/cmrdb",
 
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
   ip = process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
   mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || undefined,
-  //mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || "mongodb://127.0.0.1:27017/cmrdb",
   mongoURLLabel = "";
 
 if (process.env.DATABASE_SERVICE_NAME) {
