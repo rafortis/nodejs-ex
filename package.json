@@ -1,7 +1,7 @@
 {
   "name": "nodejs-ex",
-  "version": "0.0.1",
-  "description": "Node.js sample app for OpenShift 3",
+  "version": "1.0.0",
+  "description": "CMR backend",
   "main": "server.js",
   "dependencies": {
     "chai": "^3.5.0",
@@ -10,8 +10,10 @@
     "express": "^4.13.4",
     "mocha": "^2.4.5",
     "mongodb": "^2.1.16",
+    "mongoose" : "~4.11.14",
     "morgan": "^1.7.0",
-    "object-assign":"4.1.0"
+    "object-assign":"4.1.0",
+    "body-parser": "~1.18.2"
   },
   "engine": {
     "node": "*",
@@ -25,7 +27,7 @@
     "type": "git",
     "url": "http://github.com/openshift/nodejs-ex.git"
   },
-  "author": "Steve Speicher <sspeiche@gmail.com>",
+  "author": "Rafael Ortis",
   "license": "CC-BY-1.0",
   "bugs": {
     "url": "http://github.com/openshift/nodejs-ex/issues"

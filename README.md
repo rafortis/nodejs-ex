@@ -1,4 +1,12 @@
 
+## local info
+
+docker run -it --name mongo --rm -p 27017:27017 mongo
+
+npm start
+
+
+
 
 <!-- toc -->
 
