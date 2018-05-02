@@ -14,14 +14,15 @@ var router = express.Router();
 
 Object.assign = require('object-assign');
 app.use(morgan('combined'));
-//app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+//CORS
 app.use(cors());
 
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
   ip = process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
   mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || undefined,
+  //mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || "mongodb://127.0.0.1:27017/cmrdb",
   mongoURLLabel = "";
 
 if (process.env.DATABASE_SERVICE_NAME) {
@@ -102,7 +103,7 @@ router.route('/levels')
 
 router.route('/levels-count')
   .get(function (req, res) {
-    Level.count(function (err, count) {
+    Level.count({levelNumber: {$gt: 0}},function (err, count) {
       if (err)
         res.send(err);
 
