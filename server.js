@@ -48,6 +48,7 @@ if (process.env.DATABASE_SERVICE_NAME) {
 // Initialize connection once
 if (mongoURL != undefined) {
   // DATABASE SETUP
+  console.log("connecting to :" + mongoURL);
   mongoose.connect(mongoURL); // connect to our database
 
   // Handle the connection event
