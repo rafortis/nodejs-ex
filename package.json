@@ -22,6 +22,7 @@
   },
   "scripts": {
     "start": "node server.js",
+    "start-local": "cross-env DATABASE_SERVICE_NAME=mongodb MONGODB_DATABASE=sampledb MONGO_INTERNAL_HOST=0.0.0.0 node server.js",
     "test": "IP=0.0.0.0 PORT=3030 mocha --timeout 5000 tests/*_test.js"
   },
   "repository": {
@@ -33,5 +34,8 @@
   "bugs": {
     "url": "http://github.com/openshift/nodejs-ex/issues"
   },
-  "homepage": "http://github.com/openshift/nodejs-ex"
+  "homepage": "http://github.com/openshift/nodejs-ex",
+  "devDependencies": {
+    "cross-env": "^5.2.0"
+  }
 }
