@@ -8,6 +8,7 @@ var mongoose = require('mongoose'); // ORM
 
 // Domain
 var Level = require('./domain/Level');
+var LevelDefault = require('./domain/LevelDefault');
 
 // REST router
 var router = express.Router();
@@ -76,11 +77,11 @@ router.get('/', function (req, res) {
   res.json({ message: 'cmr backend' });
 });
 
-// on routes that end in /bears
+// on routes that end in /levels
 // ----------------------------------------------------
 router.route('/levels')
 
-  // create a bear (accessed at POST http://localhost:8080/bears)
+  // create a level (accessed at POST http://localhost:8080/levels)
   .post(function (req, res) {
     levelDTO = req.body;
     console.log(JSON.stringify(levelDTO));
@@ -96,7 +97,7 @@ router.route('/levels')
 
   })
 
-  // get all the bears (accessed at GET http://localhost:8080/api/levels)
+  // get all the levels (accessed at GET http://localhost:8080/api/levels)
   .get(function (req, res) {
     Level.find(function (err, levels) {
       if (err)
@@ -121,7 +122,7 @@ router.route('/levels-count')
 // ----------------------------------------------------
 router.route('/levels/:id')
 
-  // get the bear with that id
+  // get the level with that id
   .get(function (req, res) {
     Level.findOne({ "levelNumber": req.params.id}, function (err, level) {
       if (err)
@@ -130,7 +131,7 @@ router.route('/levels/:id')
     });
   })
 
-  // update the bear with this id
+  // update the level with this id
   .put(function (req, res) {
     Level.findOneAndUpdate({ "levelNumber": req.params.id}, req.body, function (err, level) {
 
@@ -148,7 +149,7 @@ router.route('/levels/:id')
     });
   })
 
-  // delete the bear with this id
+  // delete the level with this id
   .delete(function (req, res) {
     Level.findOneAndRemove({
       "levelNumber": req.params.id
@@ -157,6 +158,52 @@ router.route('/levels/:id')
         res.send(err);
 
       res.json({ message: 'Successfully deleted' });
+    });
+  });
+
+router.route('/level-default')
+
+  // create a level (accessed at POST http://localhost:8080/levels)
+  .post(function (req, res) {
+    levelDTO = req.body;
+    console.log(JSON.stringify(levelDTO));
+    var level = new LevelDefault(levelDTO);
+    level.levelNumber = 0;
+    console.log(JSON.stringify(level));
+    level.save(function (err) {
+      if (err)
+        res.send(err);
+      else
+        res.json({ message: 'Level default created!', levelNumber: level.levelNumber });
+    });
+
+
+  })
+
+  .put(function (req, res) {
+    LevelDefault.findOneAndUpdate({ "levelNumber": 0}, req.body, function (err, level) {
+
+      if (err)
+        res.send(err);
+
+      level.name = req.body.name;
+      level.save(function (err) {
+        if (err)
+          res.send(err);
+
+        res.json({ message: 'Level default updated!' });
+      });
+
+    });
+  })
+
+  // get all the levels (accessed at GET http://localhost:8080/api/levels)
+  .get(function (req, res) {
+    LevelDefault.find(function (err, levels) {
+      if (err)
+        res.send(err);
+
+      res.json(levels);
     });
   });
 
