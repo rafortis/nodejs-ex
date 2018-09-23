@@ -3,6 +3,7 @@ var Schema       = mongoose.Schema;
 
 var LevelDefaultSchema   = new Schema({
     levelNumber: {type : String, required: true, unique: true},
+    levelObjective: {type : String, required: false, unique: false},
     rows: {
         levelRows : [Schema.Types.Mixed],
         startRows: Schema.Types.Mixed,
