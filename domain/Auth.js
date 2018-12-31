@@ -12,7 +12,7 @@ function getOriginIp(req) {
 function createNewSession(req, res) {
     var session = new SessionStore();
     session.originIp = getOriginIp(req);
-    session.sessionkey = uuidv4();
+    session.sessionkey = Buffer.from('' + uuidv4() + uuidv4(), 'binary').toString('base64');
     session.valid = true;
     session.expires = new Date().getTime() + 60000; // 10 min
     session.save(function (err) {
