@@ -1,11 +1,9 @@
 
 ## local info
 
-docker run -it --name mongo --rm -p 27017:27017 mongo
+docker build --rm -t cmr-backend .
 
-npm start
-
-
+docker-compose up
 
 
 <!-- toc -->

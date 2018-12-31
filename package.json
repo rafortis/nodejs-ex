@@ -14,7 +14,9 @@
     "mongodb": "^2.1.16",
     "mongoose": "~4.11.14",
     "morgan": "^1.7.0",
-    "object-assign": "4.1.0"
+    "object-assign": "4.1.0",
+    "passport": "^0.4.0",
+    "uuid": "^3.3.2"
   },
   "engine": {
     "node": "*",
@@ -22,7 +24,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "start-local": "cross-env DATABASE_SERVICE_NAME=mongodb MONGODB_DATABASE=sampledb MONGO_INTERNAL_HOST=0.0.0.0 node server.js",
+    "start-local": "cross-env CMR_USER=user CMR_PASSWD=passwd OPENSHIFT_MONGODB_DB_URL=mongodb://127.0.0.1:27017/cmrdb node server.js",
     "test": "IP=0.0.0.0 PORT=3030 mocha --timeout 5000 tests/*_test.js"
   },
   "repository": {

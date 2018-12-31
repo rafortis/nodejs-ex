@@ -8,14 +8,21 @@ var mongoose = require('mongoose'); // ORM
 
 // Domain
 var Level = require('./domain/Level');
+var SessionStore = require('./domain/Session.js');
+Auth = require('./domain/Auth.js');
 var LevelDefault = require('./domain/LevelDefault');
 
 // REST router
 var router = express.Router();
 
+// LOGIN
+
 Object.assign = require('object-assign');
 app.use(morgan('combined'));
 app.use(bodyParser.json());
+
+
+
 
 //CORS
 app.use(cors());
@@ -23,7 +30,7 @@ app.use(cors());
 
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
   ip = process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
-  mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || "mongodb://127.0.0.1:27017/cmrdb",
+  mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || "mongodb://mongodb:27017/cmrdb",
   mongoURLLabel = "";
 
 if (process.env.DATABASE_SERVICE_NAME) {
@@ -83,17 +90,18 @@ router.route('/levels')
 
   // create a level (accessed at POST http://localhost:8080/levels)
   .post(function (req, res) {
-    levelDTO = req.body;
-    console.log(JSON.stringify(levelDTO));
-    var level = new Level(levelDTO);
-    console.log(JSON.stringify(level));
-    level.save(function (err) {
-      if (err)
-        res.send(err);
-      else
-        res.json({ message: 'Level created!', levelNumber: level.levelNumber });
-    });
-
+    Auth.validateSession(req.header('authorization'), function(req, res) {
+      levelDTO = req.body;
+      console.log(JSON.stringify(levelDTO));
+      var level = new Level(levelDTO);
+      console.log(JSON.stringify(level));
+      level.save(function (err) {
+        if (err)
+          res.send(err);
+        else
+          res.json({ message: 'Level created!', levelNumber: level.levelNumber });
+      });
+    }, req, res);
 
   })
 
@@ -118,6 +126,8 @@ router.route('/levels-count')
   });
 
 
+
+
 // on routes that end in /levels/:id
 // ----------------------------------------------------
 router.route('/levels/:id')
@@ -133,68 +143,76 @@ router.route('/levels/:id')
 
   // update the level with this id
   .put(function (req, res) {
-    Level.findOneAndUpdate({ "levelNumber": req.params.id}, req.body, function (err, level) {
 
-      if (err)
-        res.send(err);
+    Auth.validateSession(req.header('authorization'), function(req, res) {
+      Level.findOneAndUpdate({ "levelNumber": req.params.id}, req.body, function (err, level) {
 
-      level.name = req.body.name;
-      level.save(function (err) {
         if (err)
           res.send(err);
 
-        res.json({ message: 'Level updated!' });
-      });
+        level.name = req.body.name;
+        level.save(function (err) {
+          if (err)
+            res.send(err);
 
-    });
+          res.json({ message: 'Level updated!' });
+        });
+
+      });
+    }, req, res);
   })
 
   // delete the level with this id
   .delete(function (req, res) {
-    Level.findOneAndRemove({
-      "levelNumber": req.params.id
-    }, function (err, level) {
-      if (err)
-        res.send(err);
+    Auth.validateSession(req.header('authorization'), function(req, res) {
+      Level.findOneAndRemove({
+        "levelNumber": req.params.id
+      }, function (err, level) {
+        if (err)
+          res.send(err);
 
-      res.json({ message: 'Successfully deleted' });
-    });
+        res.json({ message: 'Successfully deleted' });
+      });
+    }, req, res);
   });
 
 router.route('/level-default')
 
   // create a level (accessed at POST http://localhost:8080/levels)
   .post(function (req, res) {
-    levelDTO = req.body;
-    console.log(JSON.stringify(levelDTO));
-    var level = new LevelDefault(levelDTO);
-    level.levelNumber = 0;
-    console.log(JSON.stringify(level));
-    level.save(function (err) {
-      if (err)
-        res.send(err);
-      else
-        res.json({ message: 'Level default created!', levelNumber: level.levelNumber });
-    });
-
+    Auth.validateSession(req.header('authorization'), function(req, res) {
+      levelDTO = req.body;
+      console.log(JSON.stringify(levelDTO));
+      var level = new LevelDefault(levelDTO);
+      level.levelNumber = 0;
+      console.log(JSON.stringify(level));
+      level.save(function (err) {
+        if (err)
+          res.send(err);
+        else
+          res.json({ message: 'Level default created!', levelNumber: level.levelNumber });
+      });
+    }, req, res);
 
   })
 
   .put(function (req, res) {
-    LevelDefault.findOneAndUpdate({ "levelNumber": 0}, req.body, function (err, level) {
+    Auth.validateSession(req.header('authorization'), function(req, res) {
+      LevelDefault.findOneAndUpdate({ "levelNumber": 0}, req.body, function (err, level) {
 
-      if (err)
-        res.send(err);
-
-      level.name = req.body.name;
-      level.save(function (err) {
         if (err)
           res.send(err);
 
-        res.json({ message: 'Level default updated!' });
-      });
+        level.name = req.body.name;
+        level.save(function (err) {
+          if (err)
+            res.send(err);
 
-    });
+          res.json({ message: 'Level default updated!' });
+        });
+
+      });
+    }, req, res);
   })
 
   // get all the levels (accessed at GET http://localhost:8080/api/levels)
@@ -210,6 +228,25 @@ router.route('/level-default')
 
 // REGISTER OUR ROUTES -------------------------------
 app.use('/api', router);
+
+app.get('/login', function(req, res) {
+  var credencialsBase64 = req.header('authorization');
+  if (credencialsBase64 != undefined) {
+    var credencials = Buffer.from(credencialsBase64, 'base64').toString('binary');
+    var loginPass = credencials.split(':');
+    if (loginPass.length != 2 ||
+      !Auth.authenticate(loginPass[0], loginPass[1], req, res)) {
+        res.status(403).send("unauthorized");
+    }
+  } else {
+    res.status(403).send("unauthorized");  
+  }
+});
+
+app.delete('/login', function(req, res) {
+  var sessionKey = req.header('authorization');
+  Auth.invalidateSession(sessionKey, res);
+});
 
 app.listen(port, ip);
 console.log('Server running on http://%s:%s', ip, port);

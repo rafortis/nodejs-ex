@@ -1,7 +1,14 @@
 version: "3"
 services:
 
-  pjekz:
+  mongodb:
     image: mongo
     ports:
       - 27017:27017
+
+  backend:
+    image: cmr-backend
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongodb
